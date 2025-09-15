@@ -1,0 +1,41 @@
+{
+  "name": "ai-assistant-console-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for AI Assistant Console - Dark Futuristic UI with Light Purple Accents",
+  "main": "src/index.js",
+  "scripts": {
+    "start": "react-scripts start",
+    "build": "react-scripts build",
+    "test": "react-scripts test",
+    "eject": "react-scripts eject"
+  },
+  "keywords": ["ai", "trading", "automation", "financial", "assistant", "react"],
+  "author": "George Kimani Ngugi",
+  "license": "MIT",
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-scripts": "5.0.1",
+    "axios": "^1.5.0",
+    "react-hot-toast": "^2.4.1",
+    "styled-components": "^6.0.7",
+    "framer-motion": "^10.16.4",
+    "react-helmet-async": "^1.3.0",
+    "react-query": "^3.39.3",
+    "react-icons": "^4.11.0"
+  },
+  "browserslist": {
+    "production": [
+      ">0.2%",
+      "not dead",
+      "not op_mini all"
+    ],
+    "development": [
+      "last 1 chrome version",
+      "last 1 firefox version",
+      "last 1 safari version"
+    ]
+  },
+  "homepage": ".",
+  "proxy": "http://localhost:3000"
+}

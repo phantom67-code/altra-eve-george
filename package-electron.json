@@ -1,0 +1,42 @@
+{
+  "name": "altra-eve-desktop",
+  "version": "1.0.0",
+  "description": "ALTRA EVE Desktop Application",
+  "main": "electron-main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder",
+    "dist": "electron-builder --publish=never"
+  },
+  "keywords": ["altra", "eve", "ai", "assistant", "desktop"],
+  "author": "George Kimani Ngugi",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^27.0.0",
+    "electron-builder": "^24.6.4"
+  },
+  "build": {
+    "appId": "com.altra.eve",
+    "productName": "ALTRA EVE",
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "altra-eve-app.html",
+      "electron-main.js",
+      "package.json"
+    ],
+    "win": {
+      "target": "nsis",
+      "icon": "icons/icon.ico"
+    },
+    "mac": {
+      "target": "dmg",
+      "icon": "icons/icon.icns"
+    },
+    "linux": {
+      "target": "AppImage",
+      "icon": "icons/icon.png"
+    }
+  }
+}

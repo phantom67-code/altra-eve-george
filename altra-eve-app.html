@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ALTRA EVE - AI Assistant Console</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #0f0f23, #1a1a2e, #16213e);
+            color: white;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+        
+        .header {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 20px;
+            text-align: center;
+            border-bottom: 2px solid #8b5cf6;
+        }
+        
+        .header h1 {
+            color: #8b5cf6;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 0 0 20px rgba(139, 92, 246, 0.5);
+        }
+        
+        .header p {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 30px 20px;
+        }
+        
+        .dashboard {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+        
+        .panel {
+            background: rgba(42, 42, 62, 0.8);
+            border-radius: 15px;
+            padding: 25px;
+            border: 2px solid rgba(139, 92, 246, 0.3);
+            backdrop-filter: blur(10px);
+            transition: all 0.3s ease;
+        }
+        
+        .panel:hover {
+            border-color: #8b5cf6;
+            box-shadow: 0 10px 30px rgba(139, 92, 246, 0.2);
+        }
+        
+        .panel h3 {
+            color: #8b5cf6;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .input-group {
+            margin-bottom: 15px;
+        }
+        
+        .input-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: #e0e0e0;
+            font-weight: 500;
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #8b5cf6;
+            border-radius: 8px;
+            background: rgba(26, 26, 46, 0.8);
+            color: white;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: #a855f7;
+            box-shadow: 0 0 15px rgba(139, 92, 246, 0.3);
+        }
+        
+        button {
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 14px;
+            margin: 5px;
+        }
+        
+        button:hover {
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(139, 92, 246, 0.4);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        
+        .response-area {
+            background: rgba(26, 26, 46, 0.9);
+            border: 2px solid #8b5cf6;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 15px;
+            min-height: 100px;
+            max-height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            display: none;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-online { background: #10b981; }
+        .status-offline { background: #ef4444; }
+        .status-unknown { background: #f59e0b; }
+        
+        .quick-actions {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 20px;
+        }
+        
+        .quick-action {
+            background: rgba(139, 92, 246, 0.1);
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .quick-action:hover {
+            background: rgba(139, 92, 246, 0.2);
+            border-color: #8b5cf6;
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 40px;
+            padding: 20px;
+            border-top: 1px solid rgba(139, 92, 246, 0.3);
+            color: #a0a0a0;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(16, 185, 129, 0.9);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 8px;
+            border: 1px solid #10b981;
+            display: none;
+            z-index: 1000;
+        }
+        
+        @media (max-width: 768px) {
+            .dashboard {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 2em;
+            }
+            
+            .container {
+                padding: 20px 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🤖 ALTRA EVE</h1>
+        <p>AI Assistant Console for Business, Trading & Life Automation</p>
+    </div>
+    
+    <div class="container">
+        <div class="dashboard">
+            <!-- Configuration Panel -->
+            <div class="panel">
+                <h3>⚙️ Configuration</h3>
+                <div class="input-group">
+                    <label for="backend-url">Backend Server URL:</label>
+                    <input type="text" id="backend-url" placeholder="http://localhost:3000" value="http://localhost:3000">
+                </div>
+                <div class="input-group">
+                    <label for="connection-status">Connection Status:</label>
+                    <div id="connection-status">
+                        <span class="status-indicator status-unknown"></span>
+                        <span id="status-text">Checking connection...</span>
+                    </div>
+                </div>
+                <button onclick="saveConfig()">Save Configuration</button>
+                <button onclick="testConnection()">Test Connection</button>
+            </div>
+            
+            <!-- AI Chat Panel -->
+            <div class="panel">
+                <h3>💬 AI Assistant</h3>
+                <div class="input-group">
+                    <label for="ai-prompt">Ask ALTRA EVE:</label>
+                    <textarea id="ai-prompt" rows="4" placeholder="Ask me anything about trading, business, automation, or life..."></textarea>
+                </div>
+                <button onclick="askAI()">Ask AI</button>
+                <button onclick="clearChat()">Clear</button>
+                <div id="ai-response" class="response-area"></div>
+            </div>
+        </div>
+        
+        <!-- Sandbox Control Panel -->
+        <div class="panel">
+            <h3>🏗️ Sandbox Control</h3>
+            <div class="button-group">
+                <button onclick="startSandbox()">Start Sandbox</button>
+                <button onclick="checkSandboxStatus()">Check Status</button>
+                <button onclick="stopSandbox()">Stop Sandbox</button>
+            </div>
+            <div class="input-group">
+                <label for="kill-phrase">Kill Switch Passphrase:</label>
+                <input type="text" id="kill-phrase" placeholder="EVE ATE AN APPLE WANGESH">
+            </div>
+            <button onclick="killSandbox()" style="background: linear-gradient(135deg, #ef4444, #dc2626);">🚨 Kill Sandbox</button>
+            <div id="sandbox-response" class="response-area"></div>
+        </div>
+        
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+            <div class="quick-action" onclick="quickAction('health')">
+                <h4>🏥 Health Check</h4>
+                <p>Check system status</p>
+            </div>
+            <div class="quick-action" onclick="quickAction('trading')">
+                <h4>📈 Trading Info</h4>
+                <p>Get trading insights</p>
+            </div>
+            <div class="quick-action" onclick="quickAction('automation')">
+                <h4>⚡ Automation</h4>
+                <p>Automation tools</p>
+            </div>
+            <div class="quick-action" onclick="quickAction('help')">
+                <h4>❓ Help</h4>
+                <p>Get assistance</p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>ALTRA EVE v1.0.0 | Password: evekeepswatch | Made with ❤️ by George Kimani Ngugi</p>
+    </div>
+    
+    <div id="notification" class="notification"></div>
+
+    <script>
+        // ALTRA EVE Web Application
+        let backendUrl = 'http://localhost:3000';
+        let isConnected = false;
+        
+        // Initialize app
+        document.addEventListener('DOMContentLoaded', function() {
+            loadConfig();
+            testConnection();
+        });
+        
+        // Configuration functions
+        function loadConfig() {
+            const savedUrl = localStorage.getItem('altra_eve_backend_url');
+            if (savedUrl) {
+                document.getElementById('backend-url').value = savedUrl;
+                backendUrl = savedUrl;
+            }
+        }
+        
+        function saveConfig() {
+            const url = document.getElementById('backend-url').value.trim();
+            if (!url) {
+                showNotification('Please enter a backend URL', 'error');
+                return;
+            }
+            
+            backendUrl = url;
+            localStorage.setItem('altra_eve_backend_url', url);
+            showNotification('Configuration saved successfully!', 'success');
+            testConnection();
+        }
+        
+        async function testConnection() {
+            try {
+                const response = await fetch(`${backendUrl}/health`, {
+                    method: 'GET',
+                    timeout: 5000
+                });
+                
+                if (response.ok) {
+                    updateConnectionStatus(true, 'Connected');
+                } else {
+                    updateConnectionStatus(false, 'Server error');
+                }
+            } catch (error) {
+                updateConnectionStatus(false, 'Connection failed');
+            }
+        }
+        
+        function updateConnectionStatus(connected, message) {
+            isConnected = connected;
+            const indicator = document.querySelector('.status-indicator');
+            const statusText = document.getElementById('status-text');
+            
+            indicator.className = `status-indicator ${connected ? 'status-online' : 'status-offline'}`;
+            statusText.textContent = message;
+        }
+        
+        // AI Chat functions
+        async function askAI() {
+            const prompt = document.getElementById('ai-prompt').value.trim();
+            if (!prompt) {
+                showNotification('Please enter a question', 'error');
+                return;
+            }
+            
+            showResponse('ai-response', 'Thinking...');
+            
+            try {
+                const response = await fetch(`${backendUrl}/qa`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt })
+                });
+                
+                const data = await response.json();
+                showResponse('ai-response', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('ai-response', `Error: ${error.message}`);
+            }
+        }
+        
+        function clearChat() {
+            document.getElementById('ai-prompt').value = '';
+            document.getElementById('ai-response').style.display = 'none';
+        }
+        
+        // Sandbox functions
+        async function startSandbox() {
+            showResponse('sandbox-response', 'Starting sandbox...');
+            
+            try {
+                const response = await fetch(`${backendUrl}/sandbox/start`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                showResponse('sandbox-response', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('sandbox-response', `Error: ${error.message}`);
+            }
+        }
+        
+        async function checkSandboxStatus() {
+            showResponse('sandbox-response', 'Checking status...');
+            
+            try {
+                const response = await fetch(`${backendUrl}/sandbox/status`);
+                const data = await response.json();
+                showResponse('sandbox-response', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('sandbox-response', `Error: ${error.message}`);
+            }
+        }
+        
+        async function stopSandbox() {
+            showResponse('sandbox-response', 'Stopping sandbox...');
+            
+            try {
+                const response = await fetch(`${backendUrl}/sandbox/stop`, {
+                    method: 'POST'
+                });
+                
+                const data = await response.json();
+                showResponse('sandbox-response', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('sandbox-response', `Error: ${error.message}`);
+            }
+        }
+        
+        async function killSandbox() {
+            const passphrase = document.getElementById('kill-phrase').value.trim() || 'EVE ATE AN APPLE WANGESH';
+            
+            if (!confirm('Are you sure you want to kill the sandbox? This action cannot be undone.')) {
+                return;
+            }
+            
+            showResponse('sandbox-response', 'Killing sandbox...');
+            
+            try {
+                const response = await fetch(`${backendUrl}/kill`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ passphrase })
+                });
+                
+                const data = await response.json();
+                showResponse('sandbox-response', JSON.stringify(data, null, 2));
+            } catch (error) {
+                showResponse('sandbox-response', `Error: ${error.message}`);
+            }
+        }
+        
+        // Quick actions
+        async function quickAction(action) {
+            const prompts = {
+                'health': 'Perform a comprehensive health check of the system',
+                'trading': 'Provide current trading insights and market analysis',
+                'automation': 'Show available automation tools and capabilities',
+                'help': 'Show me all available commands and how to use ALTRA EVE'
+            };
+            
+            document.getElementById('ai-prompt').value = prompts[action];
+            await askAI();
+        }
+        
+        // Utility functions
+        function showResponse(elementId, message) {
+            const element = document.getElementById(elementId);
+            element.textContent = message;
+            element.style.display = 'block';
+        }
+        
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.style.background = type === 'error' ? 'rgba(239, 68, 68, 0.9)' : 'rgba(16, 185, 129, 0.9)';
+            notification.style.borderColor = type === 'error' ? '#ef4444' : '#10b981';
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Keyboard shortcuts
+        document.addEventListener('keydown', function(e) {
+            if (e.ctrlKey && e.key === 'Enter') {
+                askAI();
+            }
+        });
+        
+        // Auto-save configuration
+        document.getElementById('backend-url').addEventListener('blur', function() {
+            if (this.value.trim()) {
+                saveConfig();
+            }
+        });
+    </script>
+</body>
+</html>

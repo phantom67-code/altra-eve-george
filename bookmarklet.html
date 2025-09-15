@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <title>ALTRA EVE Bookmarklet</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #1a1a2e;
+            color: white;
+        }
+        
+        h1 {
+            color: #8b5cf6;
+            text-align: center;
+        }
+        
+        .bookmarklet {
+            background: #2a2a3e;
+            padding: 20px;
+            border-radius: 10px;
+            border: 2px solid #8b5cf6;
+            margin: 20px 0;
+        }
+        
+        .bookmarklet a {
+            display: inline-block;
+            background: linear-gradient(135deg, #8b5cf6, #a855f7);
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: bold;
+            font-size: 18px;
+            transition: all 0.3s ease;
+        }
+        
+        .bookmarklet a:hover {
+            background: linear-gradient(135deg, #7c3aed, #9333ea);
+            transform: translateY(-2px);
+        }
+        
+        .instructions {
+            background: rgba(139, 92, 246, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            border: 1px solid rgba(139, 92, 246, 0.3);
+            margin: 20px 0;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
+        
+        .code-block {
+            background: #1a1a2e;
+            border: 1px solid #8b5cf6;
+            border-radius: 5px;
+            padding: 15px;
+            font-family: monospace;
+            overflow-x: auto;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <h1>🤖 ALTRA EVE Bookmarklet</h1>
+    
+    <div class="bookmarklet">
+        <h3>Drag this button to your bookmarks bar:</h3>
+        <a href="javascript:(function(){var script=document.createElement('script');script.src='data:text/javascript;base64,'+btoa(`
+            // ALTRA EVE Bookmarklet
+            (function() {
+                if (window.altraEveLoaded) return;
+                window.altraEveLoaded = true;
+                
+                // Create overlay
+                const overlay = document.createElement('div');
+                overlay.id = 'altra-eve-overlay';
+                overlay.style.cssText = \`
+                    position: fixed;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100%;
+                    background: rgba(0, 0, 0, 0.8);
+                    z-index: 999999;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                \`;
+                
+                // Create popup
+                const popup = document.createElement('div');
+                popup.style.cssText = \`
+                    background: linear-gradient(135deg, #1a1a2e, #16213e);
+                    border-radius: 20px;
+                    padding: 30px;
+                    width: 90%;
+                    max-width: 500px;
+                    max-height: 80vh;
+                    overflow-y: auto;
+                    border: 2px solid #8b5cf6;
+                    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+                    color: white;
+                    font-family: Arial, sans-serif;
+                \`;
+                
+                popup.innerHTML = \`
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                        <h2 style="margin: 0; color: #8b5cf6;">🤖 ALTRA EVE</h2>
+                        <button id="close-popup" style="background: none; border: none; color: #8b5cf6; font-size: 24px; cursor: pointer;">×</button>
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #a0a0a0;">Backend URL:</label>
+                        <input type="text" id="backend-url" placeholder="http://localhost:3000" value="http://localhost:3000" 
+                               style="width: 100%; padding: 10px; border: 1px solid #8b5cf6; border-radius: 8px; background: #2a2a3e; color: white; margin-bottom: 10px;">
+                    </div>
+                    
+                    <div style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #a0a0a0;">Ask ALTRA EVE:</label>
+                        <textarea id="ai-prompt" placeholder="Ask me anything..." 
+                                  style="width: 100%; height: 100px; padding: 10px; border: 1px solid #8b5cf6; border-radius: 8px; background: #2a2a3e; color: white; resize: vertical; margin-bottom: 10px;"></textarea>
+                        <button id="ask-ai" style="background: #8b5cf6; color: white; border: none; padding: 10px 20px; border-radius: 6px; cursor: pointer; width: 100%;">Ask AI</button>
+                    </div>
+                    
+                    <div id="ai-response" style="background: #2a2a3e; padding: 15px; border-radius: 8px; border: 1px solid #8b5cf6; min-height: 100px; white-space: pre-wrap; display: none;"></div>
+                    
+                    <div style="margin-top: 20px; display: flex; gap: 10px;">
+                        <button id="start-sandbox" style="background: #10b981; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1;">Start Sandbox</button>
+                        <button id="sandbox-status" style="background: #3b82f6; color: white; border: none; padding: 8px 16px; border-radius: 6px; cursor: pointer; flex: 1;">Status</button>
+                    </div>
+                    
+                    <div style="margin-top: 15px;">
+                        <input type="text" id="kill-phrase" placeholder="Kill switch passphrase" 
+                               style="width: 70%; padding: 8px; border: 1px solid #8b5cf6; border-radius: 6px; background: #2a2a3e; color: white;">
+                        <button id="kill-sandbox" style="background: #ef4444; color: white; border: none; padding: 8px 12px; border-radius: 6px; cursor: pointer; margin-left: 8px;">Kill</button>
+                    </div>
+                \`;
+                
+                overlay.appendChild(popup);
+                document.body.appendChild(overlay);
+                
+                // Event listeners
+                document.getElementById('close-popup').addEventListener('click', () => {
+                    document.body.removeChild(overlay);
+                    window.altraEveLoaded = false;
+                });
+                
+                overlay.addEventListener('click', (e) => {
+                    if (e.target === overlay) {
+                        document.body.removeChild(overlay);
+                        window.altraEveLoaded = false;
+                    }
+                });
+                
+                document.getElementById('ask-ai').addEventListener('click', async () => {
+                    const prompt = document.getElementById('ai-prompt').value;
+                    const backendUrl = document.getElementById('backend-url').value;
+                    if (!prompt.trim()) return;
+                    
+                    const responseDiv = document.getElementById('ai-response');
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = 'Thinking...';
+                    
+                    try {
+                        const response = await fetch(\`\${backendUrl}/qa\`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ prompt })
+                        });
+                        const data = await response.json();
+                        responseDiv.textContent = JSON.stringify(data, null, 2);
+                    } catch (error) {
+                        responseDiv.textContent = 'Error: ' + error.message;
+                    }
+                });
+                
+                document.getElementById('start-sandbox').addEventListener('click', async () => {
+                    const backendUrl = document.getElementById('backend-url').value;
+                    const responseDiv = document.getElementById('ai-response');
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = 'Starting sandbox...';
+                    
+                    try {
+                        const response = await fetch(\`\${backendUrl}/sandbox/start\`, { method: 'POST' });
+                        const data = await response.json();
+                        responseDiv.textContent = JSON.stringify(data, null, 2);
+                    } catch (error) {
+                        responseDiv.textContent = 'Error: ' + error.message;
+                    }
+                });
+                
+                document.getElementById('sandbox-status').addEventListener('click', async () => {
+                    const backendUrl = document.getElementById('backend-url').value;
+                    const responseDiv = document.getElementById('ai-response');
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = 'Checking status...';
+                    
+                    try {
+                        const response = await fetch(\`\${backendUrl}/sandbox/status\`);
+                        const data = await response.json();
+                        responseDiv.textContent = JSON.stringify(data, null, 2);
+                    } catch (error) {
+                        responseDiv.textContent = 'Error: ' + error.message;
+                    }
+                });
+                
+                document.getElementById('kill-sandbox').addEventListener('click', async () => {
+                    const passphrase = document.getElementById('kill-phrase').value || 'EVE ATE AN APPLE WANGESH';
+                    const backendUrl = document.getElementById('backend-url').value;
+                    const responseDiv = document.getElementById('ai-response');
+                    responseDiv.style.display = 'block';
+                    responseDiv.textContent = 'Killing sandbox...';
+                    
+                    try {
+                        const response = await fetch(\`\${backendUrl}/kill\`, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ passphrase })
+                        });
+                        const data = await response.json();
+                        responseDiv.textContent = JSON.stringify(data, null, 2);
+                    } catch (error) {
+                        responseDiv.textContent = 'Error: ' + error.message;
+                    }
+                });
+            })();
+        `);document.head.appendChild(script);})()">🤖 ALTRA EVE</a>
+    </div>
+    
+    <div class="instructions">
+        <h3>How to use the bookmarklet:</h3>
+        <ol>
+            <li><strong>Drag the button above</strong> to your browser's bookmarks bar</li>
+            <li><strong>Click the bookmark</strong> on any webpage to open ALTRA EVE</li>
+            <li><strong>Set your backend URL</strong> (default: http://localhost:3000)</li>
+            <li><strong>Use all ALTRA EVE features</strong> directly on any website</li>
+        </ol>
+        
+        <h3>Features:</h3>
+        <ul>
+            <li>✅ Works on any website</li>
+            <li>✅ No installation required</li>
+            <li>✅ AI chat functionality</li>
+            <li>✅ Sandbox control</li>
+            <li>✅ Kill switch</li>
+            <li>✅ Overlay interface</li>
+        </ul>
+    </div>
+    
+    <div class="instructions">
+        <h3>Alternative: Manual Installation</h3>
+        <p>If dragging doesn't work, you can manually create a bookmark:</p>
+        <ol>
+            <li>Right-click your bookmarks bar</li>
+            <li>Select "Add page" or "New bookmark"</li>
+            <li>Name it "ALTRA EVE"</li>
+            <li>Copy and paste this code as the URL:</li>
+        </ol>
+        
+        <div class="code-block">
+javascript:(function(){var script=document.createElement('script');script.src='data:text/javascript;base64,'+btoa(`(function(){if(window.altraEveLoaded)return;window.altraEveLoaded=true;const overlay=document.createElement('div');overlay.id='altra-eve-overlay';overlay.style.cssText=\`position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.8);z-index:999999;display:flex;align-items:center;justify-content:center;\`;const popup=document.createElement('div');popup.style.cssText=\`background:linear-gradient(135deg,#1a1a2e,#16213e);border-radius:20px;padding:30px;width:90%;max-width:500px;max-height:80vh;overflow-y:auto;border:2px solid #8b5cf6;box-shadow:0 20px 60px rgba(0,0,0,0.5);color:white;font-family:Arial,sans-serif;\`;popup.innerHTML=\`<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;"><h2 style="margin:0;color:#8b5cf6;">🤖 ALTRA EVE</h2><button id="close-popup" style="background:none;border:none;color:#8b5cf6;font-size:24px;cursor:pointer;">×</button></div><div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:#a0a0a0;">Backend URL:</label><input type="text" id="backend-url" placeholder="http://localhost:3000" value="http://localhost:3000" style="width:100%;padding:10px;border:1px solid #8b5cf6;border-radius:8px;background:#2a2a3e;color:white;margin-bottom:10px;"></div><div style="margin-bottom:20px;"><label style="display:block;margin-bottom:8px;color:#a0a0a0;">Ask ALTRA EVE:</label><textarea id="ai-prompt" placeholder="Ask me anything..." style="width:100%;height:100px;padding:10px;border:1px solid #8b5cf6;border-radius:8px;background:#2a2a3e;color:white;resize:vertical;margin-bottom:10px;"></textarea><button id="ask-ai" style="background:#8b5cf6;color:white;border:none;padding:10px 20px;border-radius:6px;cursor:pointer;width:100%;">Ask AI</button></div><div id="ai-response" style="background:#2a2a3e;padding:15px;border-radius:8px;border:1px solid #8b5cf6;min-height:100px;white-space:pre-wrap;display:none;"></div><div style="margin-top:20px;display:flex;gap:10px;"><button id="start-sandbox" style="background:#10b981;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;flex:1;">Start Sandbox</button><button id="sandbox-status" style="background:#3b82f6;color:white;border:none;padding:8px 16px;border-radius:6px;cursor:pointer;flex:1;">Status</button></div><div style="margin-top:15px;"><input type="text" id="kill-phrase" placeholder="Kill switch passphrase" style="width:70%;padding:8px;border:1px solid #8b5cf6;border-radius:6px;background:#2a2a3e;color:white;"><button id="kill-sandbox" style="background:#ef4444;color:white;border:none;padding:8px 12px;border-radius:6px;cursor:pointer;margin-left:8px;">Kill</button></div>\`;overlay.appendChild(popup);document.body.appendChild(overlay);document.getElementById('close-popup').addEventListener('click',()=>{document.body.removeChild(overlay);window.altraEveLoaded=false;});overlay.addEventListener('click',(e)=>{if(e.target===overlay){document.body.removeChild(overlay);window.altraEveLoaded=false;}});document.getElementById('ask-ai').addEventListener('click',async()=>{const prompt=document.getElementById('ai-prompt').value;const backendUrl=document.getElementById('backend-url').value;if(!prompt.trim())return;const responseDiv=document.getElementById('ai-response');responseDiv.style.display='block';responseDiv.textContent='Thinking...';try{const response=await fetch(\`\${backendUrl}/qa\`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({prompt})});const data=await response.json();responseDiv.textContent=JSON.stringify(data,null,2);}catch(error){responseDiv.textContent='Error: '+error.message;}});document.getElementById('start-sandbox').addEventListener('click',async()=>{const backendUrl=document.getElementById('backend-url').value;const responseDiv=document.getElementById('ai-response');responseDiv.style.display='block';responseDiv.textContent='Starting sandbox...';try{const response=await fetch(\`\${backendUrl}/sandbox/start\`,{method:'POST'});const data=await response.json();responseDiv.textContent=JSON.stringify(data,null,2);}catch(error){responseDiv.textContent='Error: '+error.message;}});document.getElementById('sandbox-status').addEventListener('click',async()=>{const backendUrl=document.getElementById('backend-url').value;const responseDiv=document.getElementById('ai-response');responseDiv.style.display='block';responseDiv.textContent='Checking status...';try{const response=await fetch(\`\${backendUrl}/sandbox/status\`);const data=await response.json();responseDiv.textContent=JSON.stringify(data,null,2);}catch(error){responseDiv.textContent='Error: '+error.message;}});document.getElementById('kill-sandbox').addEventListener('click',async()=>{const passphrase=document.getElementById('kill-phrase').value||'EVE ATE AN APPLE WANGESH';const backendUrl=document.getElementById('backend-url').value;const responseDiv=document.getElementById('ai-response');responseDiv.style.display='block';responseDiv.textContent='Killing sandbox...';try{const response=await fetch(\`\${backendUrl}/kill\`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({passphrase})});const data=await response.json();responseDiv.textContent=JSON.stringify(data,null,2);}catch(error){responseDiv.textContent='Error: '+error.message;}});})();`);document.head.appendChild(script);})()
+        </div>
+    </div>
+</body>
+</html>

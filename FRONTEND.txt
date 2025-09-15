@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8"><title>ALTRA EVE</title>
+  <style>body{font-family:Arial;margin:20px}button{padding:8px 12px}pre{background:#f5f5f5;padding:8px}</style>
+</head>
+<body>
+  <h2>ALTRA EVE — Simple Frontend</h2>
+  <p>Password: <b>evekeepswatch</b></p>
+  <div>
+    <button id="setApi">Set Backend Link</button>
+    <span id="apiShow" style="margin-left:8px;color:#555"></span>
+  </div>
+  <hr/>
+  <div>
+    <input id="qa" placeholder="Ask something" style="width:60%"/>
+    <button id="ask">Ask</button>
+  </div>
+  <pre id="out"></pre>
+  <hr/>
+  <div>
+    <button id="sbStart">Start Sandbox</button>
+    <button id="sbStatus">Sandbox Status</button>
+  </div>
+  <div style="margin-top:8px">
+    <input id="pass" placeholder="Kill switch passphrase" style="width:60%"/>
+    <button id="kill">Kill</button>
+  </div>
+  <div style="margin-top:8px">
+    <button id="tamper">Verify Tamper</button>
+  </div>
+  <script>
+    function getApi(){return localStorage.getItem('ALTRA_API')||'';}
+    function setApi(u){localStorage.setItem('ALTRA_API',u); document.getElementById('apiShow').textContent=u?('Using: '+u):'';}
+    setApi(getApi());
+    document.getElementById('setApi').onclick=()=>{
+      const u=prompt('Paste your backend link (starts with https://)');
+      if(u){ setApi(u.replace(/\\/$/,'')); alert('Saved'); }
+    };
+    async function api(path, opt={}){
+      const base=getApi(); if(!base){ alert('Set Backend Link first'); throw new Error('no base'); }
+      const r=await fetch(base+path,{headers:{'Content-Type':'application/json'}, ...opt});
+      return r.json();
+    }
+    document.getElementById('ask').onclick=async ()=>{
+      const promptTxt=document.getElementById('qa').value;
+      const j=await api('/qa',{method:'POST', body:JSON.stringify({prompt:promptTxt})});
+      document.getElementById('out').textContent=JSON.stringify(j,null,2);
+    };
+    document.getElementById('sbStart').onclick=async ()=>{
+      const j=await api('/sandbox/start',{method:'POST'});
+      document.getElementById('out').textContent=JSON.stringify(j,null,2);
+    };
+    document.getElementById('sbStatus').onclick=async ()=>{
+      const j=await api('/sandbox/status');
+      document.getElementById('out').textContent=JSON.stringify(j,null,2);
+    };
+    document.getElementById('kill').onclick=async ()=>{
+      const pass=document.getElementById('pass').value||'EVE ATE AN APPLE WANGESH';
+      const j=await api('/kill',{method:'POST', body:JSON.stringify({passphrase:pass})});
+      document.getElementById('out').textContent=JSON.stringify(j,null,2);
+    };
+    document.getElementById('tamper').onclick=async ()=>{
+      const j=await api('/tamper/verify');
+      document.getElementById('out').textContent=JSON.stringify(j,null,2);
+    };
+  </script>
+</body>
+</html>

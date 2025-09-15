@@ -1,0 +1,67 @@
+COMMANDS TO COPY AND PASTE
+===========================
+
+STEP 1: Install Surge
+---------------------
+npm install -g surge
+
+STEP 2: Navigate to Frontend Folder
+-----------------------------------
+cd "C:\Users\admin\Desktop\FRONTEND"
+
+STEP 3: Build Your App
+----------------------
+npm run build
+
+STEP 4: Deploy Your App
+-----------------------
+surge
+
+STEP 5: Follow Prompts
+----------------------
+- Press Enter for default folder
+- Choose a name for your app (like "my-ai-app")
+- Press Enter
+
+STEP 6: Get Your URL
+--------------------
+https://your-app-name.surge.sh
+
+ALTERNATIVE COMMANDS (if first ones don't work)
+==============================================
+
+STEP 1: Install Surge (Alternative)
+-----------------------------------
+npm install -g surge
+
+STEP 2: Go to Frontend Directory
+--------------------------------
+cd C:\Users\admin\Desktop\FRONTEND
+
+STEP 3: Build App
+-----------------
+npm run build
+
+STEP 4: Deploy
+--------------
+surge
+
+TROUBLESHOOTING COMMANDS
+========================
+
+If "npm is not recognized":
+1. Go to https://nodejs.org
+2. Download and install Node.js
+3. Restart Command Prompt
+4. Try again
+
+If "Permission denied":
+1. Right-click Command Prompt
+2. Select "Run as Administrator"
+3. Try again
+
+If "Command not found":
+1. Check spelling
+2. Copy commands exactly
+3. Don't change anything
+4. Press Enter after pasting
